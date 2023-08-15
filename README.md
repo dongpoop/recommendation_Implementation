@@ -2,7 +2,7 @@
 
 这是一个基于协同过滤算法思想的电影推荐系统实现。
 
-数据：MovieLens数据集（只使用了ratings表）。
+数据：MovieLens 100k数据集（只使用了rating表）。
 
 环境：python（3.10），pycharm，MySql 8.0+
 
@@ -10,7 +10,7 @@
 
 1，只需要下载这个仓库中的collaborative_filtering_for_movies.py文件，导入依赖。
 
-2.从MovieLens下载数据导入到Mysql中。
+2.从MovieLens下载数据导入到Mysql中,将数据库命名为movies,表命名为rating,每个列名分别为userId,movieId,rating,timestamp。
 
 3.直接运行。
 
