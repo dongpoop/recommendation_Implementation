@@ -7,12 +7,13 @@ Created on May 24, 2023
 
 @author: Dong Hao (3396363108@qq.com)
 """
+import pandas as pd
 
 import collaborative_filtering_for_movies as cf
 import numpy as np
 import matplotlib.pyplot as plt
 
-def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_table):
+def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_table, top_n):
     """
     sample tables from general table in database and compute every table(or sample)'s accuracy
 
@@ -20,6 +21,8 @@ def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_t
     :param train_ratio_of_general_table: ratio of train set in general table
     :param sim_threshold: similarity threshold
     :param general_table: parent table
+    :param top_n: top N recommended items
+
     :return: score_list containing average accuracy of each train set
     """
 
@@ -60,12 +63,16 @@ def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_t
             # travel every user id of every table, and recommend items for whom
             recommendation_list = cf.recommend(user_id, '1995-01-09 00:00:00', '2019-11-21 00:00:00',
                                                sim_threshold,
-                                               sim_path, f'test{no + 1}')
+                                               sim_path, 10000, f'test{no + 1}')
             # remove movie_ids not exist in table from recommendation_list
             recommendation_list = list(set(recommendation_list) & set(movie_id_list))
             # --------------------------------------delete
             # print(recommendation_list)
             # --------------------------------------delete
+            # choose top n items to recommend
+            if len(recommendation_list) >= top_n:
+                recommendation_list.sort()
+                recommendation_list = recommendation_list[-top_n:]
             # find real user's behaving items from general_table, which is the parent table of every sample table
             sql_select_real_movie_id_of_user_id = f'select (movieId + 0) from {general_table} where (userId + 0) =' \
                                                   f'{user_id}'
@@ -87,7 +94,7 @@ def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_t
                     set(real_movie_list)))) / len(set(recommendation_list))
                 table_accuracy.append(score)
                 # print this user's accuracy
-                # print(f'table {no + 1}--{user_id} : {table_accuracy[-1]}')
+                print(f'table {no + 1}--{user_id} : {table_accuracy[-1]}')
         # add every table's average accuracy to score_list
         mean_accuracy = np.mean(table_accuracy)
         # print(f'sample (or table) {no + 1} accuracy:')
@@ -104,24 +111,19 @@ def test_accuracy(number, train_ratio_of_general_table, sim_threshold, general_t
 
 
 if __name__ == '__main__':
-    x = []
-    y = []
-    for i in np.arange(0.1, 0.8, 0.1):
-        print(i)
-        x.append(i)
-        accuracy_list = test_accuracy(1, 0.5, i, 'new')
-        print(accuracy_list)
-        y.append(accuracy_list[0])
-    plt.plot(x, y)
-    plt.xlabel('similarity threshold')
-    plt.ylabel('precision')
-    plt.title('precision with similarity threshold')
-    plt.show()
+    # x = []
+    # y = []
+    # for i in np.arange(0.1, 0.8, 0.1):
+    #     print(i)
+    #     x.append(i)
+    #     accuracy_list = test_accuracy(1, 0.5, i, 'new')
+    #     print(accuracy_list)
+    #     y.append(accuracy_list[0])
+    # plt.plot(x, y)
+    # plt.xlabel('similarity threshold')
+    # plt.ylabel('precision')
+    # plt.title('precision with similarity threshold')
+    # plt.show()
 
+    print(test_accuracy(1, 0.8, 0.5, 'rating', 10))
 
-    """
-    [0.019774229346592266]   
-    [0.016803482206606334]
-    
-    [0.12919627937442965]  -- 0.3
-    """

@@ -235,7 +235,7 @@ def compute_similarity(information_matrix, method='adjusted_cos'):
 
 
 # pass successfully
-def recommend(user_id, start_time, end_time, sim_threshold, sim_location, table_name='ratings_copy1'):
+def recommend(user_id, start_time, end_time, sim_threshold, sim_location, top_n, table_name=''):
     """
     collect recent users' behaviors,and then find all items based on users' behaviors whose similarity are greater t-
     han or equal to sim_threshold from input location.Finally, remove items already behaved in recommend list.
@@ -246,6 +246,7 @@ def recommend(user_id, start_time, end_time, sim_threshold, sim_location, table_
         end_time: end time of target user's movie id history, such as '2019-11-21 00:00:00'
         sim_threshold: threshold of similarity
         sim_location: relative path of similarity.csv
+        top_n: top N recommended items
         table_name : table name of database
     :returns:
         recommending_list:recommending result
@@ -266,7 +267,7 @@ def recommend(user_id, start_time, end_time, sim_threshold, sim_location, table_
     history_list = list(set(history_list))
     # find movieIds in sim_location whose similarity with movieIds above are greater than or equal to sim_threshold
     # read similarity file
-    sim = pd.read_csv(sim_location, header=None, dtype=float)
+    sim = pd.read_csv(sim_location, header=None, dtype=float, engine='python')
     # create recommending list
     recommending_list = []
     # find and record
@@ -296,6 +297,10 @@ def recommend(user_id, start_time, end_time, sim_threshold, sim_location, table_
     recommending_list = list(set(recommending_list))
     # remove duplicated movieIds from recommending list
     recommending_list = list(set(recommending_list).difference(set(history_list)))
+    # choose top n items to recommend
+    if len(recommending_list) >= top_n:
+        recommending_list.sort()
+        recommending_list = recommending_list[-top_n:]
     # return recommending list
     return recommending_list
 
@@ -336,4 +341,3 @@ if __name__ == '__main__':
     recommending_list = recommend(5, '1995-01-09 00:00:00', '2019-11-21 00:00:00', 0.8,
                                   sim_path, 'new')
     print(recommending_list)
-
