@@ -46,3 +46,8 @@
 
 进行n(你自己输入)次测试。每次测试取全集的一定比例（同样自己输入这一参数，取出的数据作为训练集，调用collaborative_filtering_for_movies.py中的推荐函数），
 再到测试集中计算每一个用户的精度后，取所有训练集用户的精度的均值，作为准确率。
+
+这是使用MovieLens 100k数据集的表现，纵轴为precision，横轴为每一个点的编号，其中有效点大约为180个，average precision为5.24%：
+
+![image](https://github.com/dongpoop/recommendation_Implementation/assets/78525059/5b13d6c4-dcc0-4951-8332-0113ea5b7854)
+
